@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: future-fs-02
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        value: crm_jwt_super_secret_key_2026
