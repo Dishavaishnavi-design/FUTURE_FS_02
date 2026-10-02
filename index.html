@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FUTURE_FS_02 - Client Lead Management CRM</title>
+  <meta name="description" content="Professional Client Lead Management CRM Web Application with Node.js, Express, MongoDB and REST API">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- ========================================================================== -->
+  <!-- 1. ADMIN LOGIN VIEW -->
+  <!-- ========================================================================== -->
+  <div id="auth-view" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="brand-logo justify-between">
+          <div class="flex items-center gap-2">
+            <span class="brand-icon"><i class="fa-solid fa-chart-line"></i></span>
+            <span>CRM</span>
+          </div>
+        </div>
+        <p class="auth-subtitle">Admin Portal Login</p>
+      </div>
+
+      <div class="demo-credentials-box">
+        <div class="flex justify-between items-center mb-1">
+          <strong><i class="fa-solid fa-key me-1"></i> Demo Admin Account:</strong>
+          <button type="button" id="btn-fill-demo" class="btn btn-sm btn-outline">Auto Fill</button>
+        </div>
+        <div>Email: <code style="color:#38bdf8;">admin@crm.com</code></div>
+        <div>Password: <code style="color:#38bdf8;">admin123</code></div>
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email Address</label>
+          <input type="email" id="login-email" class="form-control" placeholder="admin@crm.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required>
+        </div>
+        <button type="submit" id="btn-login" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">
+          <i class="fa-solid fa-right-to-bracket"></i> Log In to Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================== -->
+  <!-- 2. MAIN CRM APPLICATION LAYOUT -->
+  <!-- ========================================================================== -->
+  <div id="app-view" class="app-layout hidden">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <span class="brand-icon"><i class="fa-solid fa-chart-line"></i></span>
+          <span>CRM</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <a class="nav-item active" data-page="dashboard" id="nav-dashboard">
+          <i class="fa-solid fa-grip-vertical"></i>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" data-page="leads" id="nav-leads">
+          <i class="fa-solid fa-users"></i>
+          <span>All Leads</span>
+          <span id="sidebar-leads-count" class="badge-count">0</span>
+        </a>
+        <a class="nav-item" id="nav-add-lead">
+          <i class="fa-solid fa-user-plus"></i>
+          <span>Add Lead</span>
+        </a>
+        <a class="nav-item" id="nav-public-form" style="margin-top: auto; background: rgba(56, 189, 248, 0.1); color: var(--accent);">
+          <i class="fa-solid fa-paper-plane"></i>
+          <span>Test Public Contact Form</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="btn-logout" class="btn btn-outline" style="width: 100%; justify-content: flex-start;">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+      
+      <!-- Top Navigation Bar -->
+      <header class="topbar">
+        <div class="flex items-center gap-3">
+          <h1 id="page-title" class="page-title">Dashboard Overview</h1>
+        </div>
+
+        <div class="user-profile">
+          <div class="avatar" id="user-avatar">A</div>
+          <div class="flex-col">
+            <span id="user-name" style="font-weight: 600; font-size: 0.9rem;">Admin User</span>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Lead Administrator</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Content Container -->
+      <div class="content-container">
+        
+        <!-- DASHBOARD PAGE VIEW -->
+        <section id="page-dashboard" class="page-view">
+          
+          <!-- Summary Metrics Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Total Leads</div>
+                <div class="stat-value" id="stat-total">0</div>
+              </div>
+              <div class="stat-icon total"><i class="fa-solid fa-users"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">New Leads</div>
+                <div class="stat-value" id="stat-new">0</div>
+              </div>
+              <div class="stat-icon new"><i class="fa-solid fa-sparkles"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Contacted</div>
+                <div class="stat-value" id="stat-contacted">0</div>
+              </div>
+              <div class="stat-icon contacted"><i class="fa-solid fa-phone-volume"></i></div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-info">
+                <div class="stat-label">Converted</div>
+                <div class="stat-value" id="stat-converted">0</div>
+              </div>
+              <div class="stat-icon converted"><i class="fa-solid fa-trophy"></i></div>
+            </div>
+          </div>
+
+          <!-- Grid layout for Dashboard Widgets -->
+          <div class="dashboard-grid">
+            
+            <!-- Left: Recent Leads Table -->
+            <div class="card">
+              <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left me-2"></i> Recent Leads</h3>
+                <button class="btn btn-sm btn-outline" id="btn-view-all-leads">View All <i class="fa-solid fa-arrow-right"></i></button>
+              </div>
+
+              <div class="table-responsive">
+                <table class="crm-table">
+                  <thead>
+                    <tr>
+                      <th>Lead</th>
+                      <th>Source</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="dashboard-recent-leads-tbody">
+                    <!-- Dynamic Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Right Column Widgets -->
+            <div class="flex-col gap-4">
+              
+              <!-- Pipeline Status Bar Card -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fa-solid fa-chart-pie me-2"></i> Lead Pipeline</h3>
+                </div>
+                <div class="pipeline-bar" id="pipeline-bar">
+                  <!-- Segments filled dynamically -->
+                </div>
+                <div class="flex justify-between items-center mt-3" style="font-size: 0.82rem; color: var(--text-muted);">
+                  <span><i class="fa-solid fa-circle" style="color: var(--status-new);"></i> New</span>
+                  <span><i class="fa-solid fa-circle" style="color: var(--status-contacted);"></i> Contacted</span>
+                  <span><i class="fa-solid fa-circle" style="color: var(--status-converted);"></i> Converted</span>
+                </div>
+              </div>
+
+              <!-- Upcoming Followups Widget -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title"><i class="fa-solid fa-calendar-check me-2"></i> Scheduled Follow-ups</h3>
+                </div>
+                <div class="followup-list" id="dashboard-followups-list">
+                  <!-- Dynamic Followup Items -->
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- LEADS MANAGEMENT PAGE VIEW -->
+        <section id="page-leads" class="page-view hidden">
+          
+          <!-- Filters & Actions Header -->
+          <div class="card" style="padding: 1rem; margin-bottom: 1.25rem;">
+            <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
+              
+              <!-- Search Bar -->
+              <div class="flex items-center gap-2" style="flex: 1; width: 100%; max-width: 400px;">
+                <input type="text" id="lead-search-input" class="form-control" placeholder="Search by name, email, phone or company...">
+              </div>
+
+              <!-- Filters -->
+              <div class="flex flex-wrap gap-2 items-center" style="width: 100%; justify-content: flex-end;">
+                <select id="filter-status" class="form-control" style="width: auto;">
+                  <option value="all">All Statuses</option>
+                  <option value="New">New</option>
+                  <option value="Contacted">Contacted</option>
+                  <option value="In Discussion">In Discussion</option>
+                  <option value="Converted">Converted</option>
+                  <option value="Lost">Lost</option>
+                </select>
+
+                <select id="filter-source" class="form-control" style="width: auto;">
+                  <option value="all">All Sources</option>
+                  <option value="Website Contact Form">Website Contact Form</option>
+                  <option value="Referral">Referral</option>
+                  <option value="Social Media">Social Media</option>
+                  <option value="Direct">Direct</option>
+                </select>
+
+                <button id="btn-open-create-modal" class="btn btn-primary">
+                  <i class="fa-solid fa-plus"></i> Add Lead
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Main Leads Table -->
+          <div class="card">
+            <div class="table-responsive">
+              <table class="crm-table">
+                <thead>
+                  <tr>
+                    <th>Lead Info</th>
+                    <th>Contact Details</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Est. Value</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-table-tbody">
+                  <!-- Dynamic Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ========================================================================== -->
+  <!-- 3. MODAL DIALOGS -->
+  <!-- ========================================================================== -->
+
+  <!-- ADD / EDIT LEAD MODAL -->
+  <div id="lead-modal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title" id="lead-modal-title">Add New Lead</h3>
+        <button class="modal-close" data-close="lead-modal">&times;</button>
+      </div>
+
+      <form id="lead-form">
+        <input type="hidden" id="lead-id">
+        
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label" for="form-name">Full Name *</label>
+            <input type="text" id="form-name" class="form-control" required placeholder="e.g. John Doe">
+          </div>
+
+          <div class="flex gap-3">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-email">Email Address *</label>
+              <input type="email" id="form-email" class="form-control" required placeholder="john@example.com">
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-phone">Phone Number *</label>
+              <input type="text" id="form-phone" class="form-control" required placeholder="+1 (555) 000-0000">
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-company">Company</label>
+              <input type="text" id="form-company" class="form-control" placeholder="Acme Inc.">
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-value">Estimated Value ($)</label>
+              <input type="number" id="form-value" class="form-control" placeholder="5000" min="0">
+            </div>
+          </div>
+
+          <div class="flex gap-3">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-source">Lead Source</label>
+              <select id="form-source" class="form-control">
+                <option value="Website Contact Form">Website Contact Form</option>
+                <option value="Referral">Referral</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Direct">Direct</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-status">Lead Status</label>
+              <select id="form-status" class="form-control">
+                <option value="New">New</option>
+                <option value="Contacted">Contacted</option>
+                <option value="In Discussion">In Discussion</option>
+                <option value="Converted">Converted</option>
+                <option value="Lost">Lost</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-message">Inquiry / Message Notes</label>
+            <textarea id="form-message" class="form-control" rows="3" placeholder="Optional notes or client inquiry message..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" data-close="lead-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-lead">Save Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- LEAD DETAILS & ACTIVITY DRAWER MODAL -->
+  <div id="lead-details-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 700px;">
+      <div class="modal-header">
+        <div>
+          <h3 class="modal-title" id="detail-lead-name">Lead Details</h3>
+          <span id="detail-lead-company" style="font-size: 0.85rem; color: var(--text-muted);">Company</span>
+        </div>
+        <button class="modal-close" data-close="lead-details-modal">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Details Summary Header -->
+        <div class="flex flex-wrap gap-4 justify-between items-center mb-4 p-3" style="background: var(--bg-primary); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <div><span style="color: var(--text-muted); font-size: 0.78rem;">EMAIL:</span> <div id="detail-email" style="font-weight: 600;">-</div></div>
+          <div><span style="color: var(--text-muted); font-size: 0.78rem;">PHONE:</span> <div id="detail-phone" style="font-weight: 600;">-</div></div>
+          <div><span style="color: var(--text-muted); font-size: 0.78rem;">SOURCE:</span> <div id="detail-source" style="font-weight: 600;">-</div></div>
+          <div><span style="color: var(--text-muted); font-size: 0.78rem;">STATUS:</span> <div id="detail-status-badge">-</div></div>
+        </div>
+
+        <!-- Activity Tabs -->
+        <div class="tab-headers">
+          <button class="tab-btn active" data-tab="tab-notes">Notes Timeline</button>
+          <button class="tab-btn" data-tab="tab-followups">Scheduled Follow-ups</button>
+        </div>
+
+        <!-- Notes Tab Content -->
+        <div id="tab-notes" class="tab-content">
+          <form id="add-note-form" class="mb-4">
+            <div class="form-group">
+              <label class="form-label">Add Note</label>
+              <textarea id="note-input" class="form-control" rows="2" placeholder="Write a note about call, email, or meeting..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary"><i class="fa-solid fa-plus"></i> Post Note</button>
+          </form>
+
+          <div class="timeline" id="notes-timeline">
+            <!-- Dynamic Notes list -->
+          </div>
+        </div>
+
+        <!-- Followups Tab Content -->
+        <div id="tab-followups" class="tab-content hidden">
+          <form id="add-followup-form" class="mb-4">
+            <div class="flex gap-2 mb-2">
+              <input type="text" id="followup-title-input" class="form-control" placeholder="Task title (e.g. Call client to finalize quote)" required style="flex:2;">
+              <input type="datetime-local" id="followup-date-input" class="form-control" required style="flex:1;">
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary"><i class="fa-solid fa-calendar-plus"></i> Schedule Follow-up</button>
+          </form>
+
+          <div class="timeline" id="followups-timeline">
+            <!-- Dynamic Follow-up list -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Deletion</h3>
+        <button class="modal-close" data-close="delete-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted);">Are you sure you want to delete this lead? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" data-close="delete-modal">Cancel</button>
+        <button id="btn-confirm-delete" class="btn btn-danger">Delete Lead</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLIC WEBSITE CONTACT FORM SIMULATOR MODAL -->
+  <div id="public-form-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-globe me-2" style="color: var(--accent);"></i> Simulated Client Website Form</h3>
+        <button class="modal-close" data-close="public-form-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">
+          This form simulates a visitor filling out the contact form on your client-facing website. Submitting will automatically send a new lead to the CRM REST API!
+        </p>
+
+        <form id="public-contact-form">
+          <div class="form-group">
+            <label class="form-label" for="pub-name">Your Full Name *</label>
+            <input type="text" id="pub-name" class="form-control" placeholder="Alex Morgan" required>
+          </div>
+          <div class="flex gap-3">
+            <div class="form-group" style="flex:1;">
+              <label class="form-label" for="pub-email">Your Email *</label>
+              <input type="email" id="pub-email" class="form-control" placeholder="alex@startup.io" required>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label class="form-label" for="pub-phone">Phone Number *</label>
+              <input type="text" id="pub-phone" class="form-control" placeholder="+1 (555) 777-8888" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pub-company">Company Name</label>
+            <input type="text" id="pub-company" class="form-control" placeholder="Startup Inc.">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="pub-message">Inquiry / Requirements</label>
+            <textarea id="pub-message" class="form-control" rows="3" placeholder="Hello! We are looking to adopt your services for our team..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            <i class="fa-solid fa-paper-plane"></i> Submit Inquiry as Web Lead
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
