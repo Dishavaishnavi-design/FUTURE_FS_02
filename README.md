@@ -1,6 +1,6 @@
-# Client Lead Management CRM Web Application 🚀
+# FUTURE_FS_02 - Client Lead Management CRM 🚀
 
-A complete, simple, and professional **Client Lead Management CRM** system built for internship project presentation and evaluation.
+A complete, simple, and professional **Client Lead Management CRM** system built for internship project evaluation (Task: `FUTURE_FS_02`).
 
 This CRM system manages client leads captured from website contact forms and direct client interactions, giving admins full visibility over their sales pipeline, scheduled follow-ups, and lead status.
 
